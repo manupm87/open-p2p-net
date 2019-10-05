@@ -33,8 +33,7 @@ while 1:
 	data = d[0]
 	addr = d[1]
 	
-	if not data: 
-		break
+	
 	
 	reply = 'OK...' + data
 	
