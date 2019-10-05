@@ -10,6 +10,8 @@ import sys
 mediator_host = '127.0.0.1';
 mediator_port = 8888;
 
+active_peers = {}
+
 client_id = sys.argv[1]
 
 class ClientThread(threading.Thread):
@@ -29,7 +31,12 @@ def receive_messages(sock):
     while(True):
         try:
             message, addr = sock.recvfrom(1024)
-            print("{}: {}".format(addr, str(message, "utf-8")))
+            message = str(message, "utf-8")
+            print("{}: {}".format(addr, message))
+            if message.startswith("LIST"):
+                active_peers = eval(message[5:])
+                print("Active peers:")
+                print(active_peers)
 
         except socket.error as msg:
             print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
