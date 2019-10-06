@@ -84,7 +84,7 @@ def main():
         print('Failed to create socket')
         sys.exit()
     
-    local_port = random.randint(100, 200)
+    local_port = random.randint(20000, 29999)
 
     try:
         s.bind(('', local_port))
