@@ -5,9 +5,10 @@ import threading
 import time
 import socket
 import sys
+import random
 
 
-mediator_host = 'localhost';
+mediator_host = 'manuelpm.com';
 mediator_port = 8888;
 
 active_peers = {}
@@ -39,8 +40,7 @@ def receive_messages(sock):
                 print(active_peers)
                 for peer, addr in active_peers.items():
                     if peer != client_id:
-                        _send_message("PUNCHING from {} to {}".format(client_id, peer),
-                                    sock=sock, host=addr[0], port=addr[1])
+                        find_peer_port(sock, peer, addr)
 
         except socket.error as msg:
             print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
@@ -60,6 +60,11 @@ def heartbeat_to_mediator(sock):
         _send_message(message=msg, sock=sock, host=mediator_host, port=mediator_port)
         time.sleep(10)
 
+def find_peer_port(sock, peer_id, peer_addr):
+    for i in range(2):
+        for p in range(1, 65535):
+            msg = "SNIFFING from {} for {}".format(client_id, peer_id)
+            _send_message(message=msg, sock=sock, host=peer_addr[0], port=p)
 
 def _send_message(message, sock, host, port):
     try :
@@ -78,7 +83,14 @@ def main():
     except socket.error:
         print('Failed to create socket')
         sys.exit()
+    
+    local_port = random.randint(100, 200)
 
+    try:
+        s.bind(('', local_port))
+    except socket.error as msg:
+        print('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+        sys.exit()
 
     listener_thread = ClientThread(1, "listener", s, receive_messages)
     sender_thread = ClientThread(2, "manuelpm87", s, read_input_and_send)
