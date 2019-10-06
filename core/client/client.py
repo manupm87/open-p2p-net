@@ -7,7 +7,7 @@ import socket
 import sys
 
 
-mediator_host = '127.0.0.1';
+mediator_host = 'localhost';
 mediator_port = 8888;
 
 active_peers = {}
@@ -37,6 +37,10 @@ def receive_messages(sock):
                 active_peers = eval(message[5:])
                 print("Active peers:")
                 print(active_peers)
+                for peer, addr in active_peers.items():
+                    if peer != client_id:
+                        _send_message("PUNCHING from {} to {}".format(client_id, peer),
+                                    sock=sock, host=addr[0], port=addr[1])
 
         except socket.error as msg:
             print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
@@ -51,6 +55,8 @@ def read_input_and_send(sock):
 def heartbeat_to_mediator(sock):
     while(True):
         msg = "REGISTER {}".format(client_id)
+        _send_message(message=msg, sock=sock, host=mediator_host, port=mediator_port)
+        msg = "LIST"
         _send_message(message=msg, sock=sock, host=mediator_host, port=mediator_port)
         time.sleep(10)
 
