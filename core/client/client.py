@@ -41,7 +41,6 @@ def receive_messages(sock, config):
                     if peer != config["client_id"]:
                         find_peer_port(sock, peer, addr, config)
 
-
         except socket.error as msg:
             print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
             sys.exit()
@@ -52,6 +51,9 @@ def receive_client_messages(sock, config):
             message, addr = sock.recvfrom(1024)
             message = str(message, "utf-8")
             print("{}: {}".format(addr, message))
+        except socket.error as msg:
+            print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+            sys.exit()
 
 def read_input_and_send(sock, config):
     while(True):
