@@ -46,6 +46,13 @@ def receive_messages(sock, config):
             print('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
             sys.exit()
 
+def receive_client_messages(sock, config):
+    while(True):
+        try:
+            message, addr = sock.recvfrom(1024)
+            message = str(message, "utf-8")
+            print("{}: {}".format(addr, message))
+
 def read_input_and_send(sock, config):
     while(True):
         msg = input("[{}]> ".format(config["client_id"]))
@@ -104,17 +111,20 @@ def main():
     config["sock_mediator"] = sock_mediator
     config["sock_client"] = sock_client
 
-    listener_thread = ClientThread(1, "listener", sock_mediator, receive_messages, config)
-    sender_thread = ClientThread(2, "manuelpm87", sock_mediator, read_input_and_send, config)
-    heartbeat_thread = ClientThread(3, "heartbeat", sock_mediator, heartbeat_to_mediator, config)
+    listener_thread = ClientThread(1, "listener", config["sock_mediator"], receive_messages, config)
+    sender_thread = ClientThread(2, "manuelpm87", config["sock_mediator"], read_input_and_send, config)
+    heartbeat_thread = ClientThread(3, "heartbeat", config["sock_mediator"], heartbeat_to_mediator, config)
+    client_thread = ClientThread(3, "clients", config["sock_client"], receive_client_messages, config)
 
     listener_thread.start()
     sender_thread.start()
     heartbeat_thread.start()
+    client_thread.start()
 
     listener_thread.join()
     sender_thread.join()
     heartbeat_thread.join()
+    client_thread.join()
 
 
 if __name__ == "__main__":
